@@ -47,7 +47,7 @@ export const setupAndLoginLinkedin = async (
 
     // Login page
     // Enter credentials and login
-    if (!session || !session.isUsable()) {
+    if (process.env.IS_HEADLESS === 'true') {
         await findAndFill(
             LINKEDIN_SPECIFIC_STRINGS.loginUsernameId,
             process.env.LINKEDIN_PHONE || 'phone_not_available',

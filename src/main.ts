@@ -20,7 +20,7 @@ const crawler = new PlaywrightCrawler({
         searchTopics.length *
         (Number(process.env.INFINITE_SCROLL_TIMEOUT_SECS) + 60),
     // For local development, it's good to keep the browser visible
-    headless: false,
+    headless: process.env.IS_HEADLESS === 'true',
     launchContext: {
         userDataDir: './user-data',
     },

@@ -1,6 +1,6 @@
 {
 	"name": "linkedin-smart-scrapper",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"type": "module",
 	"description": "This is a boilerplate of an Apify Actor.",
 	"engines": {
