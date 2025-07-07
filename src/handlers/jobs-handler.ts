@@ -4,13 +4,13 @@ import {
     setupAndLoginLinkedin,
     processSteps,
     processPostsString,
-} from '../utils/helpers';
-import { PlaywrightContextDefintion, JobPost } from '../utils/types';
+} from '../utils/helpers.js';
+import { PlaywrightContextDefintion, JobPost } from '../utils/types.js';
 import {
     LINKEDIN_JOB_POST_URL,
     LINKEDIN_SPECIFIC_STRINGS,
     ROUTE_LABELS,
-} from '../utils/constants';
+} from '../utils/constants.js';
 
 const searchTopics = process.env.SEARCH_TOPICS?.split(',') || [];
 

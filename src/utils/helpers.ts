@@ -3,9 +3,9 @@ import { Locator, Page } from 'playwright';
 import {
     FindAndClickOptions,
     PlaywrightContextDefintion,
-} from '../utils/types';
-import { LINKEDIN_SPECIFIC_STRINGS } from './constants';
-import { Step } from './types';
+} from '../utils/types.js';
+import { LINKEDIN_SPECIFIC_STRINGS } from './constants.js';
+import { Step } from './types.js';
 import { playwrightUtils } from 'crawlee';
 
 export const waitForXSeconds = async (seconds: number) =>
