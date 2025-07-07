@@ -2,10 +2,9 @@ import 'dotenv/config';
 import { Actor } from 'apify';
 
 import {
-    getPostsFromLocatorArray,
     setupAndLoginLinkedin,
-    clickShowResultsButton,
     processSteps,
+    processPostsString,
 } from '../utils/helpers.js';
 import { LINKEDIN_SPECIFIC_STRINGS, ROUTE_LABELS } from '../utils/constants.js';
 import { PlaywrightContextDefintion } from '../utils/types.js';
@@ -18,71 +17,11 @@ export const postsHandler = async (ctx: PlaywrightContextDefintion) => {
     await setupAndLoginLinkedin(ROUTE_LABELS.POSTS, ctx);
 
     for (const topic of searchTopics) {
+        await page.goto(
+            `https://www.linkedin.com/search/results/content/?datePosted=%22past-24h%22&keywords=%22${topic}%22&sortBy=%22date_posted%22`,
+        );
+
         const steps = [
-            {
-                step: 'fill_input',
-                locatorString: LINKEDIN_SPECIFIC_STRINGS.searchInputSelector,
-                text: topic,
-            },
-            {
-                step: 'press_enter',
-            },
-            {
-                step: 'wait',
-                seconds: 5,
-            },
-            {
-                step: 'click',
-                text: LINKEDIN_SPECIFIC_STRINGS.postsTabButtonText,
-                role: 'button',
-                stringOptions: { exact: true },
-            },
-            {
-                step: 'wait',
-                seconds: 5,
-            },
-            {
-                step: 'click',
-                text: LINKEDIN_SPECIFIC_STRINGS.sortByFilterButtonText,
-                role: 'button',
-                stringOptions: { exact: false },
-            },
-            {
-                step: 'wait',
-                seconds: 1,
-            },
-            {
-                step: 'click',
-                locatorString:
-                    LINKEDIN_SPECIFIC_STRINGS.latestPostsFilterOptionSelector,
-            },
-            {
-                step: 'custom',
-                func: async () => clickShowResultsButton(page),
-            },
-            {
-                step: 'wait',
-                seconds: 5,
-            },
-            {
-                step: 'click',
-                text: LINKEDIN_SPECIFIC_STRINGS.datePostedFilterButtonText,
-                role: 'button',
-                stringOptions: { exact: false },
-            },
-            {
-                step: 'wait',
-                seconds: 1,
-            },
-            {
-                step: 'click',
-                locatorString:
-                    LINKEDIN_SPECIFIC_STRINGS.past24HoursFilterOptionSelector,
-            },
-            {
-                step: 'custom',
-                func: async () => clickShowResultsButton(page),
-            },
             {
                 step: 'wait',
                 seconds: 5,
@@ -99,7 +38,17 @@ export const postsHandler = async (ctx: PlaywrightContextDefintion) => {
         const posts = await page
             .locator(LINKEDIN_SPECIFIC_STRINGS.postsContainerSelector)
             .all();
-        const result = (await getPostsFromLocatorArray(posts)).filter(
+        const stringPosts = await Promise.all(
+            [...posts].map(async (post) => {
+                const text = await post.textContent();
+                return text;
+            }),
+        );
+        const arrayPosts = stringPosts
+            .filter((f) => f !== null)
+            .map(processPostsString)
+            .filter((f) => f.length > 0);
+        const result = arrayPosts.filter(
             (f) =>
                 f[0] === LINKEDIN_SPECIFIC_STRINGS.stringToFilterOutFromPosts,
         );

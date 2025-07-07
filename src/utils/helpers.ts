@@ -3,7 +3,6 @@ import { Locator, Page } from 'playwright';
 import {
     FindAndClickOptions,
     PlaywrightContextDefintion,
-    StringMatchingOptions,
 } from '../utils/types';
 import { LINKEDIN_SPECIFIC_STRINGS } from './constants';
 import { Step } from './types';
@@ -27,33 +26,14 @@ export const findAndClick = async (options: FindAndClickOptions) => {
     } else {
         element = page.getByText(text as string, { ...stringOptions }).first();
     }
-    console.log('findAndClick', element);
     await element.click({ force: true });
     return element;
 };
 
 export const findAndFill = async (query: string, fill: string, page: Page) => {
-    const element = page.locator(query);
+    const element = page.locator(query).first();
     await element.fill(fill);
     return element;
-};
-
-export const getPostsFromLocatorArray = async (posts: Locator[]) => {
-    const stringPosts = await Promise.all(
-        [...posts].map(async (post) => {
-            const text = await post.textContent();
-            return text;
-        }),
-    );
-    const arrayPosts = stringPosts
-        .filter((f) => f !== null)
-        .map((postString) =>
-            postString
-                .split('\n')
-                .filter((f) => f.trim() !== '')
-                .map((v) => v.trim()),
-        );
-    return arrayPosts;
 };
 
 export const setupAndLoginLinkedin = async (
@@ -86,20 +66,6 @@ export const setupAndLoginLinkedin = async (
     }
 };
 
-export const clickShowResultsButton = async (page: Page) => {
-    const showResultsButtons = await page
-        .getByText(LINKEDIN_SPECIFIC_STRINGS.showResultsButtonText, {
-            exact: true,
-        })
-        .all();
-    for (const button of showResultsButtons) {
-        if (await button.isVisible()) {
-            await button.click();
-            return;
-        }
-    }
-};
-
 export const processSteps = async (steps: Step[], page: Page) => {
     for (const step of steps) {
         switch (step.step) {
@@ -124,6 +90,33 @@ export const processSteps = async (steps: Step[], page: Page) => {
                         Number(process.env.INFINITE_SCROLL_TIMEOUT_SECS) || 10,
                 });
                 break;
+            case 'scroll_to_bottom':
+                await scrollToBottom(step.locatorString!, page);
+                break;
         }
     }
+};
+
+export const scrollToBottom = async (locatorString: string, page: Page) => {
+    const element = page.locator(locatorString);
+
+    // not using waitForXSeconds because program is unable to recognize
+    // outside variables inside the eval function, not sure why
+    await element.evaluate(async (el) => {
+        let scrollPosition = el.clientHeight;
+        while (scrollPosition <= el.scrollHeight) {
+            el.scrollTo(0, scrollPosition);
+            await new Promise((resolve) => {
+                setTimeout(resolve, 1000);
+            });
+            scrollPosition += el.clientHeight;
+        }
+    });
+};
+
+export const processPostsString = (text: string) => {
+    return text
+        .split('\n')
+        .filter((f) => f.trim() !== '')
+        .map((v) => v.trim());
 };

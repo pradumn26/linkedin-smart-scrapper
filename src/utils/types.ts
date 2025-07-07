@@ -31,3 +31,8 @@ export type Step = {
     seconds?: number;
     role?: 'button';
 };
+
+export type JobPost = {
+    textContent: string[];
+    link: string | null;
+};
