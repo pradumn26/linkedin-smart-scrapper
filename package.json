@@ -1,6 +1,6 @@
 {
 	"name": "linkedin-smart-scrapper",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"type": "module",
 	"description": "This is a boilerplate of an Apify Actor.",
 	"engines": {
@@ -11,7 +11,8 @@
 		"apify": "^3.4.2",
 		"cheerio": "^1.1.0",
 		"crawlee": "^3.13.9",
-		"dotenv": "^16.6.1"
+		"dotenv": "^16.6.1",
+		"playwright": "^1.53.1"
 	},
 	"devDependencies": {
 		"@apify/eslint-config": "^1.0.0",
@@ -20,7 +21,6 @@
 		"eslint": "^9.29.0",
 		"eslint-config-prettier": "^10.1.5",
 		"globals": "^16.2.0",
-		"playwright": "^1.53.1",
 		"prettier": "^3.5.3",
 		"tsx": "^4.20.3",
 		"typescript": "^5.8.3",
