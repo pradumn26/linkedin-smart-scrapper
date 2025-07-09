@@ -1,3 +1,4 @@
+import { playwrightUtils } from 'crawlee';
 import { Locator, Page } from 'playwright';
 
 import {
@@ -6,7 +7,6 @@ import {
 } from '../utils/types.js';
 import { LINKEDIN_SPECIFIC_STRINGS } from './constants.js';
 import { Step } from './types.js';
-import { playwrightUtils } from 'crawlee';
 
 export const waitForXSeconds = async (seconds: number) =>
     new Promise((resolve) => {
@@ -40,14 +40,20 @@ export const setupAndLoginLinkedin = async (
     label: string,
     playwrightCtx: PlaywrightContextDefintion,
 ) => {
-    const { page, log, session } = playwrightCtx;
+    const { page, log } = playwrightCtx;
     log.info(`Processing ${label}...`);
 
     await page.setViewportSize({ width: 1400, height: 850 });
 
+    await waitForXSeconds(5);
+
     // Login page
     // Enter credentials and login
-    if (process.env.IS_HEADLESS === 'true') {
+    const url = page.url();
+
+    const isLoggedIn = url.includes('linkedin.com/feed');
+
+    if (!isLoggedIn) {
         await findAndFill(
             LINKEDIN_SPECIFIC_STRINGS.loginUsernameId,
             process.env.LINKEDIN_PHONE || 'phone_not_available',
@@ -63,6 +69,7 @@ export const setupAndLoginLinkedin = async (
             page,
         });
         await waitForXSeconds(5);
+        console.log(await page.content());
     }
 };
 

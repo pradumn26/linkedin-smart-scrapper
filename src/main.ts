@@ -14,17 +14,30 @@ const router = createPlaywrightRouter();
 router.addHandler(ROUTE_LABELS.POSTS, postsHandler);
 router.addHandler(ROUTE_LABELS.JOBS, jobsHandler);
 
+const proxyConfiguration = await Actor.createProxyConfiguration({
+    groups: ['RESIDENTIAL'],
+    countryCode: 'US', // Optional: specify a country
+});
+
 const crawler = new PlaywrightCrawler({
+    proxyConfiguration,
     requestHandler: router,
-    requestHandlerTimeoutSecs:
-        searchTopics.length *
-        (Number(process.env.INFINITE_SCROLL_TIMEOUT_SECS) + 60),
+    requestHandlerTimeoutSecs: 1800,
     // For local development, it's good to keep the browser visible
-    headless: process.env.IS_HEADLESS === 'true',
+    headless: false,
+    // headless: true,
     launchContext: {
         userDataDir: './user-data',
+        launchOptions: {
+            slowMo: 200,
+        },
     },
     maxRequestRetries: Number(process.env.MAX_REQUEST_RETRIES) ?? 3,
+    useSessionPool: true,
+    persistCookiesPerSession: true,
+    browserPoolOptions: {
+        useFingerprints: true,
+    },
 });
 
 await crawler.run([
