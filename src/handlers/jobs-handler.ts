@@ -102,6 +102,7 @@ export const jobsHandler = async (ctx: PlaywrightContextDefintion) => {
         }
 
         await Actor.pushData({
+            label: ROUTE_LABELS.JOBS,
             topic,
             timestamp: new Date().toISOString(),
             result: jobPosts,

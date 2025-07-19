@@ -53,6 +53,7 @@ export const postsHandler = async (ctx: PlaywrightContextDefintion) => {
                 f[0] === LINKEDIN_SPECIFIC_STRINGS.stringToFilterOutFromPosts,
         );
         await Actor.pushData({
+            label: ROUTE_LABELS.POSTS,
             topic,
             timestamp: new Date().toISOString(),
             result,
