@@ -38,6 +38,19 @@ const crawler = new PlaywrightCrawler({
     browserPoolOptions: {
         useFingerprints: true,
     },
+    preNavigationHooks: [
+        async ({ page }) => {
+            // Add the essential authentication cookie to the browser context
+            await page.context().addCookies([
+                {
+                    name: 'li_at',
+                    value: process.env.LI_AT_COOKIE || '',
+                    domain: '.linkedin.com',
+                    path: '/',
+                },
+            ]);
+        },
+    ],
 });
 
 await crawler.run([
@@ -46,11 +59,11 @@ await crawler.run([
         label: ROUTE_LABELS.JOBS,
         uniqueKey: ROUTE_LABELS.JOBS,
     },
-    {
-        url: 'https://linkedin.com/login',
-        label: ROUTE_LABELS.POSTS,
-        uniqueKey: ROUTE_LABELS.POSTS,
-    },
+    // {
+    //     url: 'https://linkedin.com/login',
+    //     label: ROUTE_LABELS.POSTS,
+    //     uniqueKey: ROUTE_LABELS.POSTS,
+    // },
 ]);
 
 await Actor.exit();
