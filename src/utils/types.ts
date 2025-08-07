@@ -36,3 +36,7 @@ export type JobPost = {
     textContent: string[];
     link: string | null;
 };
+
+export type ActorInput = {
+    postsSearchTopics: string;
+};

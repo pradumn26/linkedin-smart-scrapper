@@ -8,8 +8,6 @@ import { jobsHandler } from './handlers/jobs-handler.js';
 
 await Actor.init();
 
-const searchTopics = process.env.SEARCH_TOPICS?.split(',') || [];
-
 const router = createPlaywrightRouter();
 router.addHandler(ROUTE_LABELS.POSTS, postsHandler);
 router.addHandler(ROUTE_LABELS.JOBS, jobsHandler);
@@ -25,7 +23,7 @@ const crawler = new PlaywrightCrawler({
     requestHandlerTimeoutSecs: 1800,
     // For local development, it's good to keep the browser visible
     // headless: false,
-    headless: true,
+    headless: false,
     launchContext: {
         userDataDir: './user-data',
         launchOptions: {
@@ -38,6 +36,7 @@ const crawler = new PlaywrightCrawler({
     browserPoolOptions: {
         useFingerprints: true,
     },
+    maxConcurrency: 1,
     preNavigationHooks: [
         async ({ page }) => {
             // Add the essential authentication cookie to the browser context

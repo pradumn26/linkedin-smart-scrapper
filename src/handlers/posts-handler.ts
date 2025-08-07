@@ -7,11 +7,12 @@ import {
     processPostsString,
 } from '../utils/helpers.js';
 import { LINKEDIN_SPECIFIC_STRINGS, ROUTE_LABELS } from '../utils/constants.js';
-import { PlaywrightContextDefintion } from '../utils/types.js';
-
-const searchTopics = process.env.SEARCH_TOPICS?.split(',') || [];
+import { ActorInput, PlaywrightContextDefintion } from '../utils/types.js';
 
 export const postsHandler = async (ctx: PlaywrightContextDefintion) => {
+    const actorInput = await Actor.getInput<ActorInput>();
+    const searchTopics = actorInput?.postsSearchTopics?.split(',') || [];
+
     const { page } = ctx;
 
     await setupAndLoginLinkedin(ROUTE_LABELS.POSTS, ctx);
