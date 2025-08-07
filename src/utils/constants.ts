@@ -84,5 +84,11 @@ export const ROUTE_LABELS = {
 export const LINKEDIN_JOB_POST_URL =
     'https://www.linkedin.com/jobs/view/:jobId';
 
+export const MONGODB_DATABASE_NAME = 'linkedin_scraper';
+
+export const MONGODB_COLLECTIONS = {
+    FILTERS: 'filters',
+};
+
 // PS: Checkout the video of crawl to understand what all
 // page and components are used in the code

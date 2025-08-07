@@ -3,10 +3,18 @@ import { Locator, Page } from 'playwright';
 
 import {
     FindAndClickOptions,
+    Filter,
+    JobPost,
     PlaywrightContextDefintion,
 } from '../utils/types.js';
-import { LINKEDIN_SPECIFIC_STRINGS } from './constants.js';
+import {
+    LINKEDIN_SPECIFIC_STRINGS,
+    MONGODB_COLLECTIONS,
+    MONGODB_DATABASE_NAME,
+    ROUTE_LABELS,
+} from './constants.js';
 import { Step } from './types.js';
+import { client } from '../services/mongodb.js';
 
 export const waitForXSeconds = async (seconds: number) =>
     new Promise((resolve) => {
@@ -69,7 +77,6 @@ export const setupAndLoginLinkedin = async (
             page,
         });
         await waitForXSeconds(5);
-        console.log(await page.content());
     }
 };
 
@@ -126,4 +133,28 @@ export const processPostsString = (text: string) => {
         .split('\n')
         .filter((f) => f.trim() !== '')
         .map((v) => v.trim());
+};
+
+export const getFilter = async (name: string) => {
+    const db = client.db(MONGODB_DATABASE_NAME);
+    const collection = db.collection(MONGODB_COLLECTIONS.FILTERS);
+    const filter = await collection.findOne<Filter>({ name });
+    return filter;
+};
+
+export const filterJobsByCompany = async (
+    jobPosts: JobPost[],
+    filter: Filter,
+) => {
+    let filteredJobPosts: JobPost[] = [];
+
+    const excludeCompanyNames = new Set(filter.value || []);
+    filteredJobPosts = jobPosts.filter((jobPost) => {
+        return !(
+            excludeCompanyNames.has(jobPost.textContent[1]) ||
+            excludeCompanyNames.has(jobPost.textContent[2])
+        );
+    });
+
+    return filteredJobPosts;
 };

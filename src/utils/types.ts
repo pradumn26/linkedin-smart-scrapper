@@ -40,3 +40,9 @@ export type JobPost = {
 export type ActorInput = {
     postsSearchTopics: string;
 };
+
+export type Filter = {
+    _id: string;
+    name: string;
+    value: string[];
+};

@@ -4,13 +4,15 @@ import {
     setupAndLoginLinkedin,
     processSteps,
     processPostsString,
+    filterJobsByCompany,
+    getFilter,
 } from '../utils/helpers.js';
-import { PlaywrightContextDefintion, JobPost } from '../utils/types.js';
 import {
     LINKEDIN_JOB_POST_URL,
     LINKEDIN_SPECIFIC_STRINGS,
     ROUTE_LABELS,
 } from '../utils/constants.js';
+import { PlaywrightContextDefintion, JobPost, Filter } from '../utils/types.js';
 
 const searchTopics = process.env.SEARCH_TOPICS?.split(',') || [];
 
@@ -19,6 +21,7 @@ export const jobsHandler = async (ctx: PlaywrightContextDefintion) => {
 
     await setupAndLoginLinkedin(ROUTE_LABELS.JOBS, ctx);
 
+    const companyNameFilter = await getFilter('company_name');
     for (const topic of searchTopics) {
         let jobPosts: JobPost[] = [];
         await page.goto(
@@ -100,6 +103,11 @@ export const jobsHandler = async (ctx: PlaywrightContextDefintion) => {
 
             await processSteps(steps, page);
         }
+
+        jobPosts = await filterJobsByCompany(
+            jobPosts,
+            companyNameFilter as Filter,
+        );
 
         await Actor.pushData({
             label: ROUTE_LABELS.JOBS,

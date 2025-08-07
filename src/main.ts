@@ -23,7 +23,7 @@ const crawler = new PlaywrightCrawler({
     requestHandlerTimeoutSecs: 1800,
     // For local development, it's good to keep the browser visible
     // headless: false,
-    headless: false,
+    headless: true,
     launchContext: {
         userDataDir: './user-data',
         launchOptions: {
