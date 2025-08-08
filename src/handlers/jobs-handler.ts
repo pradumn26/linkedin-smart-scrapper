@@ -83,7 +83,10 @@ export const jobsHandler = async (ctx: PlaywrightContextDefintion) => {
                                     link,
                                 };
                             })
-                            .filter((f) => f.textContent.length > 1);
+                            .filter(
+                                (f) =>
+                                    f.textContent.length > 1 && f.link !== null,
+                            );
                         jobPosts = [...jobPosts, ...jobPostsOnCurrentPage];
                     },
                 },
