@@ -3,22 +3,11 @@
     "type": "object",
     "schemaVersion": 1,
     "properties": {
-        "startUrls": {
-            "title": "Start URLs",
-            "type": "array",
-            "description": "URLs to start with.",
-            "editor": "requestListSources",
-            "prefill": [
-                {
-                    "url": "https://apify.com"
-                }
-            ]
-        },
-        "maxRequestsPerCrawl": {
-            "title": "Max Requests per Crawl",
-            "type": "integer",
-            "description": "Maximum number of requests that can be made by this crawler.",
-            "default": 100
+        "jobsDatePostedSeconds": {
+            "title": "Jobs Date Posted Seconds",
+            "type": "string",
+            "description": "Jobs date posted seconds.",
+            "default": "86400"
         }
     }
 }

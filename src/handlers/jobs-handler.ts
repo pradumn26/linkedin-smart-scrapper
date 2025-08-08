@@ -4,28 +4,31 @@ import {
     setupAndLoginLinkedin,
     processSteps,
     processPostsString,
-    filterJobsByCompany,
-    getFilter,
 } from '../utils/helpers.js';
 import {
     LINKEDIN_JOB_POST_URL,
     LINKEDIN_SPECIFIC_STRINGS,
     ROUTE_LABELS,
 } from '../utils/constants.js';
-import { PlaywrightContextDefintion, JobPost, Filter } from '../utils/types.js';
+import {
+    PlaywrightContextDefintion,
+    JobPost,
+    ActorInput,
+} from '../utils/types.js';
 
 const searchTopics = process.env.SEARCH_TOPICS?.split(',') || [];
 
 export const jobsHandler = async (ctx: PlaywrightContextDefintion) => {
     const { page } = ctx;
+    const actorInput = await Actor.getInput<ActorInput>();
+    const jobsDatePostedSeconds = actorInput?.jobsDatePostedSeconds || '86400';
 
     await setupAndLoginLinkedin(ROUTE_LABELS.JOBS, ctx);
 
-    const companyNameFilter = await getFilter('company_name');
     for (const topic of searchTopics) {
         let jobPosts: JobPost[] = [];
         await page.goto(
-            `https://www.linkedin.com/jobs/search/?f_TPR=r86400&keywords=%22${topic}%22&sortBy=DD`,
+            `https://www.linkedin.com/jobs/search/?f_TPR=r${jobsDatePostedSeconds}&keywords=%22${topic}%22&sortBy=DD`,
         );
 
         let isContinue = true;
@@ -103,11 +106,6 @@ export const jobsHandler = async (ctx: PlaywrightContextDefintion) => {
 
             await processSteps(steps, page);
         }
-
-        jobPosts = await filterJobsByCompany(
-            jobPosts,
-            companyNameFilter as Filter,
-        );
 
         await Actor.pushData({
             label: ROUTE_LABELS.JOBS,

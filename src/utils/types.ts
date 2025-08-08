@@ -38,7 +38,7 @@ export type JobPost = {
 };
 
 export type ActorInput = {
-    postsSearchTopics: string;
+    jobsDatePostedSeconds: string;
 };
 
 export type Filter = {
