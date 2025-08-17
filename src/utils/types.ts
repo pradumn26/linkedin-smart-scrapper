@@ -35,15 +35,11 @@ export type Step = {
 export type JobPost = {
     textContent: string[];
     link: string | null;
+    jobId: string | null;
+    isSeen: boolean;
 };
 
 export type ActorInput = {
     postsSearchTopics: string;
     jobsDatePostedSeconds: string;
-};
-
-export type Filter = {
-    _id: string;
-    name: string;
-    value: string[];
 };

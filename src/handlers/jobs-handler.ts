@@ -8,6 +8,8 @@ import {
 import {
     LINKEDIN_JOB_POST_URL,
     LINKEDIN_SPECIFIC_STRINGS,
+    MONGODB_COLLECTIONS,
+    MONGODB_DATABASE_NAME,
     ROUTE_LABELS,
 } from '../utils/constants.js';
 import {
@@ -15,6 +17,7 @@ import {
     JobPost,
     ActorInput,
 } from '../utils/types.js';
+import { client } from '../services/mongodb.js';
 
 const searchTopics = process.env.SEARCH_TOPICS?.split(',') || [];
 
@@ -79,8 +82,10 @@ export const jobsHandler = async (ctx: PlaywrightContextDefintion) => {
                                 );
                                 const link = v[1];
                                 return {
-                                    textContent: postTextStrings,
+                                    textContent: postTextStrings.slice(0, 3),
                                     link,
+                                    jobId: link?.split('/').pop() ?? null,
+                                    isSeen: false,
                                 };
                             })
                             .filter(
@@ -110,11 +115,43 @@ export const jobsHandler = async (ctx: PlaywrightContextDefintion) => {
             await processSteps(steps, page);
         }
 
+        await client.connect();
+        const db = client.db(MONGODB_DATABASE_NAME);
+        const jobsCollection = db.collection(MONGODB_COLLECTIONS.JOBS);
+        const alreadyAddedJobPosts = await jobsCollection
+            .find<Pick<JobPost, 'jobId'>>(
+                {
+                    jobId: { $in: jobPosts.map((post) => post.jobId) },
+                },
+                {
+                    projection: {
+                        _id: 0,
+                        jobId: 1,
+                    },
+                },
+            )
+            .toArray();
+        const alreadyAddedJobPostsSet = new Set(
+            alreadyAddedJobPosts.map((post) => post.jobId),
+        );
+        jobPosts = jobPosts.filter(
+            (post) => !alreadyAddedJobPostsSet.has(post.jobId),
+        );
+        let response = {
+            acknowledged: false,
+            insertedCount: 0,
+            insertedIds: {},
+        };
+        if (jobPosts.length > 0) {
+            response = await jobsCollection.insertMany(jobPosts);
+            response.acknowledged = true;
+        }
+
         await Actor.pushData({
             label: ROUTE_LABELS.JOBS,
             topic,
             timestamp: new Date().toISOString(),
-            result: jobPosts,
+            result: response,
         });
     }
 };

@@ -87,7 +87,7 @@ export const LINKEDIN_JOB_POST_URL =
 export const MONGODB_DATABASE_NAME = 'linkedin_scraper';
 
 export const MONGODB_COLLECTIONS = {
-    FILTERS: 'filters',
+    JOBS: 'jobs',
 };
 
 // PS: Checkout the video of crawl to understand what all
