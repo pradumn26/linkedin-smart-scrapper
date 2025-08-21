@@ -1,24 +1,22 @@
+import { Actor } from 'apify';
 import { playwrightUtils } from 'crawlee';
 import { Locator, Page } from 'playwright';
 
 import {
     FindAndClickOptions,
-    JobPost,
+    Handler,
     PlaywrightContextDefintion,
 } from '../utils/types.js';
-import {
-    LINKEDIN_SPECIFIC_STRINGS,
-    MONGODB_COLLECTIONS,
-    MONGODB_DATABASE_NAME,
-    ROUTE_LABELS,
-} from './constants.js';
+import { LINKEDIN_SPECIFIC_STRINGS } from './constants.js';
 import { Step } from './types.js';
-import { client } from '../services/mongodb.js';
 
-export const waitForXSeconds = async (seconds: number) =>
-    new Promise((resolve) => {
-        setTimeout(resolve, seconds * 1000);
+export const waitForXSeconds = async (seconds: number) => {
+    let timer;
+    await new Promise((resolve) => {
+        timer = setTimeout(resolve, seconds * 1000);
     });
+    clearTimeout(timer);
+};
 
 export const findAndClick = async (options: FindAndClickOptions) => {
     const { page, role, text, locatorString, stringOptions } = options;
@@ -119,9 +117,11 @@ export const scrollToBottom = async (locatorString: string, page: Page) => {
         let scrollPosition = el.clientHeight;
         while (scrollPosition <= el.scrollHeight) {
             el.scrollTo(0, scrollPosition);
+            let timer;
             await new Promise((resolve) => {
-                setTimeout(resolve, 1000);
+                timer = setTimeout(resolve, 1000);
             });
+            clearTimeout(timer);
             scrollPosition += el.clientHeight;
         }
     });
@@ -133,3 +133,21 @@ export const processPostsString = (text: string) => {
         .filter((f) => f.trim() !== '')
         .map((v) => v.trim());
 };
+
+export const catchHandlerError =
+    (fn: Handler) => async (ctx: PlaywrightContextDefintion) => {
+        const { page } = ctx;
+        try {
+            await fn(ctx);
+        } catch (error) {
+            const screenshotBuffer = await page.screenshot();
+            await Actor.setValue(
+                `screenshot-${new Date().getTime()}`,
+                screenshotBuffer,
+                {
+                    contentType: 'image/png',
+                },
+            );
+            throw error;
+        }
+    };

@@ -5,12 +5,15 @@ import { createPlaywrightRouter, PlaywrightCrawler } from 'crawlee';
 import { ROUTE_LABELS } from './utils/constants.js';
 import { postsHandler } from './handlers/posts-handler.js';
 import { jobsHandler } from './handlers/jobs-handler.js';
+import { jobsPlusHandler } from './handlers/jobs-plus-handler.js';
+import { catchHandlerError } from './utils/helpers.js';
 
 await Actor.init();
 
 const router = createPlaywrightRouter();
-router.addHandler(ROUTE_LABELS.POSTS, postsHandler);
-router.addHandler(ROUTE_LABELS.JOBS, jobsHandler);
+// router.addHandler(ROUTE_LABELS.POSTS, postsHandler);
+// router.addHandler(ROUTE_LABELS.JOBS, jobsHandler);
+router.addHandler(ROUTE_LABELS.JOBS_PLUS, catchHandlerError(jobsPlusHandler));
 
 const proxyConfiguration = await Actor.createProxyConfiguration({
     groups: ['RESIDENTIAL'],
@@ -54,14 +57,9 @@ const crawler = new PlaywrightCrawler({
 await crawler.run([
     {
         url: 'https://linkedin.com/login',
-        label: ROUTE_LABELS.JOBS,
-        uniqueKey: ROUTE_LABELS.JOBS,
+        label: ROUTE_LABELS.JOBS_PLUS,
+        uniqueKey: ROUTE_LABELS.JOBS_PLUS,
     },
-    // {
-    //     url: 'https://linkedin.com/login',
-    //     label: ROUTE_LABELS.POSTS,
-    //     uniqueKey: ROUTE_LABELS.POSTS,
-    // },
 ]);
 
 await Actor.exit();

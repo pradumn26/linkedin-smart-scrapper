@@ -86,6 +86,7 @@ export const jobsHandler = async (ctx: PlaywrightContextDefintion) => {
                                     link,
                                     jobId: link?.split('/').pop() ?? null,
                                     isSeen: false,
+                                    employeeCount: null,
                                 };
                             })
                             .filter(

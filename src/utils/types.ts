@@ -37,9 +37,12 @@ export type JobPost = {
     link: string | null;
     jobId: string | null;
     isSeen: boolean;
+    employeeCount: number | null;
 };
 
 export type ActorInput = {
     postsSearchTopics: string;
     jobsDatePostedSeconds: string;
 };
+
+export type Handler = (ctx: PlaywrightContextDefintion) => Promise<void>;
